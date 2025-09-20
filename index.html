@@ -3,107 +3,140 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Interactive To-Do App</title>
+  <title>Simple Blogging Platform</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #fdf6f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      font-family: Arial, sans-serif;
       margin: 0;
+      padding: 2rem;
+      background-color: #fff5f8;
     }
 
-    .container {
-      background: #fff;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 30px;
-      width: 90%;
-      max-width: 400px;
+    h1 {
+      color: #e43f6f;
     }
 
-    h2 {
-      text-align: center;
-      color: #e43f5a;
+    .form-group {
+      margin-bottom: 1rem;
     }
 
-    input[type="text"] {
+    input, textarea, button {
       width: 100%;
-      padding: 10px;
-      margin-top: 15px;
-      border: 2px solid #e43f5a;
-      border-radius: 10px;
-      font-size: 16px;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
 
     button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      background-color: #e43f5a;
+      background-color: #e43f6f;
       color: white;
       border: none;
-      border-radius: 10px;
-      font-size: 16px;
+      margin-top: 0.5rem;
       cursor: pointer;
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin-top: 20px;
-    }
-
-    li {
-      background: #fce4ec;
-      padding: 10px;
-      margin-bottom: 10px;
+    .blog-post {
+      background: white;
+      padding: 1rem;
+      border: 1px solid #ddd;
       border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: 0.3s;
+      margin-top: 1rem;
     }
 
-    li.completed {
-      text-decoration: line-through;
-      color: #999;
+    .blog-post h3 {
+      margin: 0;
+      color: #333;
     }
 
-    .delete {
-      background-color: #ff6f61;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
+    .blog-post p {
+      color: #555;
+    }
+
+    .edit-btn {
+      background-color: #ff9800;
+      margin-top: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>To-Do List</h2>
-    <input type="text" id="taskInput" placeholder="Enter a new task..." />
-    <button onclick="addTask()">Add Task</button>
-    <ul id="taskList"></ul>
+
+  <h1>📝 My Blog Platform</h1>
+
+  <div id="blog-form">
+    <div class="form-group">
+      <input type="text" id="title" placeholder="Enter blog title">
+    </div>
+    <div class="form-group">
+      <textarea id="content" rows="5" placeholder="Write your blog content..."></textarea>
+    </div>
+    <button onclick="savePost()">Publish</button>
   </div>
 
-  <script>
-    function addTask() {
-      let input = document.getElementById("taskInput");
-      let task = input.value.trim();
-      if (task === "") return;
+  <div id="posts-container"></div>
 
-      let li = document.createElement("li");
-      li.innerHTML = `
-        <span onclick="this.parentElement.classList.toggle('completed')">${task}</span>
-        <button class="delete" onclick="this.parentElement.remove()">Delete</button>
-      `;
-      document.getElementById("taskList").appendChild(li);
-      input.value = "";
+  <script>
+    let editingIndex = null;
+    const posts = [];
+
+    function savePost() {
+      const titleInput = document.getElementById("title");
+      const contentInput = document.getElementById("content");
+      const title = titleInput.value.trim();
+      const content = contentInput.value.trim();
+
+      if (!title || !content) {
+        alert("Please fill in both title and content.");
+        return;
+      }
+
+      if (editingIndex !== null) {
+        posts[editingIndex] = { title, content };
+        editingIndex = null;
+      } else {
+        posts.push({ title, content });
+      }
+
+      titleInput.value = "";
+      contentInput.value = "";
+      displayPosts();
+    }
+
+    function displayPosts() {
+      const container = document.getElementById("posts-container");
+      container.innerHTML = "";
+
+      posts.forEach((post, index) => {
+        const postDiv = document.createElement("div");
+        postDiv.className = "blog-post";
+
+        const title = document.createElement("h3");
+        title.textContent = post.title;
+
+        const content = document.createElement("p");
+        content.textContent = post.content;
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.className = "edit-btn";
+        editBtn.onclick = () => editPost(index);
+
+        postDiv.appendChild(title);
+        postDiv.appendChild(content);
+        postDiv.appendChild(editBtn);
+
+        container.appendChild(postDiv);
+      });
+    }
+
+    function editPost(index) {
+      const post = posts[index];
+      document.getElementById("title").value = post.title;
+      document.getElementById("content").value = post.content;
+      editingIndex = index;
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   </script>
+
 </body>
 </html>
